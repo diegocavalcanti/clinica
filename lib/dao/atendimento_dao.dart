@@ -1,24 +1,24 @@
-import 'package:clinica/models/atendimento_view.dart';
+import 'package:clinica/models/atendimento_model_view.dart';
 import 'package:floor/floor.dart';
-import '../models/atendimento.dart';
+import '../models/atendimento_model.dart';
 
 @dao
 abstract class AtendimentoDao {
   @Query('SELECT * from Atendimento')
-  Future<List<Atendimento>> findAllAtendimentos();
+  Future<List<AtendimentoModel>> findAllAtendimentos();
 
   @Query('SELECT * FROM Atendimento WHERE id = :id')
-  Stream<Atendimento?> findById(int id);
+  Stream<AtendimentoModel?> findById(int id);
 
   @insert
-  Future<void> insertAtendimento(Atendimento atendimento);
+  Future<void> insertAtendimento(AtendimentoModel atendimento);
 
   //@Query('DELETE FROM Atendimento WHERE id = :id')
   @delete
-  Future<int> deleteAtendimento(Atendimento atendimento);
+  Future<int> deleteAtendimento(AtendimentoModel atendimento);
 
   @update
-  Future<int> updateAtendimento(Atendimento atendimento);
+  Future<int> updateAtendimento(AtendimentoModel atendimento);
 
   @Query('SELECT Atendimento.*,   Customer.name as customer_name FROM Atendimento JOIN  Customer ON (Atendimento.customer_id = Customer.id)')
   Future<List<AtendimentoView>> findAtendimentosView();

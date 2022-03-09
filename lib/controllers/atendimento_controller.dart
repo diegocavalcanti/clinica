@@ -1,49 +1,69 @@
-import 'package:clinica/dao/custormer_dao.dart';
+import 'package:clinica/dao/cliente_dao.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '../dao/atendimento_dao.dart';
 import '../db/app_database.dart';
-import '../models/atendimento_view.dart';
-import '../models/customer.dart';
+import '../models/atendimento_model_view.dart';
+import '../models/cliente_model.dart';
 import '../utils/nav.dart';
 
-import '../models/atendimento.dart';
-import '../pages/atendimento_form_page.dart';
+import '../models/atendimento_model.dart';
+import '../pages/atendimento_page_form.dart';
 
 class AtendimentoController extends ChangeNotifier {
   final AppDatabase db;
   late AtendimentoDao atendimentoDao;
-  late Atendimento _atendimento;
+  late AtendimentoModel _atendimento;
 
-  late CustomerDao customerDao;
-  Atendimento get atendimento => _atendimento;
-  List<Atendimento> _listAtendimentos = [];
-  List<Customer> _listCustomer = [];
+  late ClienteModel _atendimentoCustomer = ClienteModel.newInstance();
+
+  late ClienteDao customerDao;
+
+  List<AtendimentoModel> _listAtendimentos = [];
+  List<ClienteModel> _listCustomer = [];
   List<AtendimentoView> _listAtendimentosView = [];
 
-  List<Atendimento> get listAtendimentos => _listAtendimentos;
-  List<Customer> get listCustomer => _listCustomer;
+  AtendimentoModel get atendimento => _atendimento;
+  List<AtendimentoModel> get listAtendimentos => _listAtendimentos;
+  List<ClienteModel> get listCustomer => _listCustomer;
   List<AtendimentoView> get listAtendimentosView => _listAtendimentosView;
+  ClienteModel get atendimentoCustomer => _atendimentoCustomer;
 
-  void set atendimento(value) {
-    _atendimento = value;
-    //  notifyListeners();
-  }
+  TextEditingController formFieldCustomer = TextEditingController();
+  TextEditingController formFieldData = TextEditingController();
 
   AtendimentoController(this.db) {
-    _atendimento = Atendimento.newInstance();
+    _atendimento = AtendimentoModel.newInstance();
     atendimentoDao = db.atendimentoDao;
-    customerDao = db.customerDao;
+    customerDao = db.clienteDao;
     _readData();
   }
 
+  void set atendimento(value) {
+    _atendimento = value;
+    _updateBind();
+  }
+
+  Future<List<ClienteModel>> burcarClientes(String name) async {
+    List<ClienteModel> clientes = await customerDao.findClientesByName('%' + name + '%');
+    return clientes;
+  }
+
+  _updateBind() async {
+    _atendimentoCustomer = (await customerDao.findById(_atendimento.customer_id))!;
+    formFieldCustomer.text = atendimentoCustomer.name;
+    formFieldData.text = atendimento.date;
+    notifyListeners();
+  }
+
   _readData() async {
-    _listCustomer = await customerDao.findAllCustomers();
+    _listCustomer = await customerDao.findAllClientes();
     _listAtendimentos = await atendimentoDao.findAllAtendimentos();
     _listAtendimentosView = await atendimentoDao.findAtendimentosView();
     notifyListeners();
   }
 
-  save(BuildContext context, Atendimento Atendimento) {
+  save(BuildContext context, AtendimentoModel Atendimento) {
     if (Atendimento.id == null) {
       atendimentoDao.insertAtendimento(Atendimento);
     } else {
@@ -56,16 +76,16 @@ class AtendimentoController extends ChangeNotifier {
   }
 
   void goToFormNew(BuildContext context) {
-    _atendimento = Atendimento.newInstance();
-    goTo(context, AtendimentoFormPage());
+    _atendimento = AtendimentoModel.newInstance();
+    goTo(context, AtendimentoPageForm());
   }
 
-  void goToPageEdit(BuildContext context, Atendimento atendimento) {
-    _atendimento = atendimento;
-    goTo(context, AtendimentoFormPage());
+  void goToPageEdit(BuildContext context, AtendimentoModel atendimentoEdit) {
+    atendimento = atendimentoEdit;
+    goTo(context, AtendimentoPageForm());
   }
 
-  void remove(BuildContext context, Atendimento atendimento) async {
+  void remove(BuildContext context, AtendimentoModel atendimento) async {
 //    _list.remove(Atendimento);
     atendimentoDao.deleteAtendimento(atendimento);
     _readData();

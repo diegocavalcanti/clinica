@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../models/customer.dart';
+import '../models/cliente_model.dart';
 
-class SearchWidget extends SearchDelegate<Customer> {
-  final List<Customer> names;
-  Customer result = Customer.newInstance();
+class SearchWidget extends SearchDelegate<ClienteModel> {
+  final List<ClienteModel> names;
+  ClienteModel result = ClienteModel.newInstance();
 
   SearchWidget({required this.names});
 

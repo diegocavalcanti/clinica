@@ -1,7 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:floor/floor.dart';
 
-import 'package:clinica/models/atendimento.dart';
+import 'package:clinica/models/atendimento_model.dart';
 
 @DatabaseView('SELECT Atendimento.*,   Customer.name as customer_name FROM Atendimento JOIN  Customer ON (Atendimento.customer_id = Customer.id)',
     viewName: 'AtendimentoView')
@@ -20,7 +20,7 @@ class AtendimentoView {
     required this.customer_name,
   });
 
-  Atendimento toEntity() {
-    return Atendimento(id: this.id, date: this.date, customer_id: this.customer_id, text: this.text);
+  AtendimentoModel toEntity() {
+    return AtendimentoModel(id: this.id, date: this.date, customer_id: this.customer_id, text: this.text);
   }
 }

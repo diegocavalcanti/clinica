@@ -61,7 +61,7 @@ class _$AppDatabase extends AppDatabase {
     changeListener = listener ?? StreamController<String>.broadcast();
   }
 
-  CustomerDao? _customerDaoInstance;
+  ClienteDao? _clienteDaoInstance;
 
   AtendimentoDao? _atendimentoDaoInstance;
 
@@ -84,9 +84,9 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Customer` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `cel` TEXT NOT NULL, `email` TEXT NOT NULL, `responsible` TEXT NOT NULL, `comments` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `ClienteModel` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `cel` TEXT NOT NULL, `email` TEXT NOT NULL, `responsible` TEXT NOT NULL, `comments` TEXT NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Atendimento` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `date` TEXT NOT NULL, `customer_id` INTEGER NOT NULL, `text` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `AtendimentoModel` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `date` TEXT NOT NULL, `customer_id` INTEGER NOT NULL, `text` TEXT NOT NULL)');
 
         await database.execute(
             'CREATE VIEW IF NOT EXISTS `AtendimentoView` AS SELECT Atendimento.*,   Customer.name as customer_name FROM Atendimento JOIN  Customer ON (Atendimento.customer_id = Customer.id)');
@@ -98,8 +98,8 @@ class _$AppDatabase extends AppDatabase {
   }
 
   @override
-  CustomerDao get customerDao {
-    return _customerDaoInstance ??= _$CustomerDao(database, changeListener);
+  ClienteDao get clienteDao {
+    return _clienteDaoInstance ??= _$ClienteDao(database, changeListener);
   }
 
   @override
@@ -109,47 +109,44 @@ class _$AppDatabase extends AppDatabase {
   }
 }
 
-class _$CustomerDao extends CustomerDao {
-  _$CustomerDao(this.database, this.changeListener)
-      : _queryAdapter = QueryAdapter(database, changeListener),
-        _customerInsertionAdapter = InsertionAdapter(
+class _$ClienteDao extends ClienteDao {
+  _$ClienteDao(this.database, this.changeListener)
+      : _queryAdapter = QueryAdapter(database),
+        _clienteModelInsertionAdapter = InsertionAdapter(
             database,
-            'Customer',
-            (Customer item) => <String, Object?>{
+            'ClienteModel',
+            (ClienteModel item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
                   'cel': item.cel,
                   'email': item.email,
                   'responsible': item.responsible,
                   'comments': item.comments
-                },
-            changeListener),
-        _customerUpdateAdapter = UpdateAdapter(
+                }),
+        _clienteModelUpdateAdapter = UpdateAdapter(
             database,
-            'Customer',
+            'ClienteModel',
             ['id'],
-            (Customer item) => <String, Object?>{
+            (ClienteModel item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
                   'cel': item.cel,
                   'email': item.email,
                   'responsible': item.responsible,
                   'comments': item.comments
-                },
-            changeListener),
-        _customerDeletionAdapter = DeletionAdapter(
+                }),
+        _clienteModelDeletionAdapter = DeletionAdapter(
             database,
-            'Customer',
+            'ClienteModel',
             ['id'],
-            (Customer item) => <String, Object?>{
+            (ClienteModel item) => <String, Object?>{
                   'id': item.id,
                   'name': item.name,
                   'cel': item.cel,
                   'email': item.email,
                   'responsible': item.responsible,
                   'comments': item.comments
-                },
-            changeListener);
+                });
 
   final sqflite.DatabaseExecutor database;
 
@@ -157,16 +154,16 @@ class _$CustomerDao extends CustomerDao {
 
   final QueryAdapter _queryAdapter;
 
-  final InsertionAdapter<Customer> _customerInsertionAdapter;
+  final InsertionAdapter<ClienteModel> _clienteModelInsertionAdapter;
 
-  final UpdateAdapter<Customer> _customerUpdateAdapter;
+  final UpdateAdapter<ClienteModel> _clienteModelUpdateAdapter;
 
-  final DeletionAdapter<Customer> _customerDeletionAdapter;
+  final DeletionAdapter<ClienteModel> _clienteModelDeletionAdapter;
 
   @override
-  Future<List<Customer>> findAllCustomers() async {
+  Future<List<ClienteModel>> findAllClientes() async {
     return _queryAdapter.queryList('SELECT * FROM Customer',
-        mapper: (Map<String, Object?> row) => Customer(
+        mapper: (Map<String, Object?> row) => ClienteModel(
             id: row['id'] as int?,
             name: row['name'] as String,
             cel: row['cel'] as String,
@@ -176,66 +173,78 @@ class _$CustomerDao extends CustomerDao {
   }
 
   @override
-  Stream<Customer?> findById(int id) {
-    return _queryAdapter.queryStream('SELECT * FROM Customer WHERE id = ?1',
-        mapper: (Map<String, Object?> row) => Customer(
+  Future<List<ClienteModel>> findClientesByName(String name) async {
+    return _queryAdapter.queryList('SELECT * FROM Customer WHERE name like ?1',
+        mapper: (Map<String, Object?> row) => ClienteModel(
             id: row['id'] as int?,
             name: row['name'] as String,
             cel: row['cel'] as String,
             email: row['email'] as String,
             responsible: row['responsible'] as String,
             comments: row['comments'] as String),
-        arguments: [id],
-        queryableName: 'Customer',
-        isView: false);
+        arguments: [name]);
   }
 
   @override
-  Future<void> insertCustomer(Customer customer) async {
-    await _customerInsertionAdapter.insert(customer, OnConflictStrategy.abort);
+  Future<ClienteModel?> findById(int id) async {
+    return _queryAdapter.query('SELECT * FROM Customer WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => ClienteModel(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            cel: row['cel'] as String,
+            email: row['email'] as String,
+            responsible: row['responsible'] as String,
+            comments: row['comments'] as String),
+        arguments: [id]);
   }
 
   @override
-  Future<int> updateCustomer(Customer customer) {
-    return _customerUpdateAdapter.updateAndReturnChangedRows(
+  Future<void> insertCliente(ClienteModel customer) async {
+    await _clienteModelInsertionAdapter.insert(
         customer, OnConflictStrategy.abort);
   }
 
   @override
-  Future<int> deleteCustomer(Customer customer) {
-    return _customerDeletionAdapter.deleteAndReturnChangedRows(customer);
+  Future<int> updateCliente(ClienteModel customer) {
+    return _clienteModelUpdateAdapter.updateAndReturnChangedRows(
+        customer, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<int> deleteCliente(ClienteModel customer) {
+    return _clienteModelDeletionAdapter.deleteAndReturnChangedRows(customer);
   }
 }
 
 class _$AtendimentoDao extends AtendimentoDao {
   _$AtendimentoDao(this.database, this.changeListener)
       : _queryAdapter = QueryAdapter(database, changeListener),
-        _atendimentoInsertionAdapter = InsertionAdapter(
+        _atendimentoModelInsertionAdapter = InsertionAdapter(
             database,
-            'Atendimento',
-            (Atendimento item) => <String, Object?>{
+            'AtendimentoModel',
+            (AtendimentoModel item) => <String, Object?>{
                   'id': item.id,
                   'date': item.date,
                   'customer_id': item.customer_id,
                   'text': item.text
                 },
             changeListener),
-        _atendimentoUpdateAdapter = UpdateAdapter(
+        _atendimentoModelUpdateAdapter = UpdateAdapter(
             database,
-            'Atendimento',
+            'AtendimentoModel',
             ['id'],
-            (Atendimento item) => <String, Object?>{
+            (AtendimentoModel item) => <String, Object?>{
                   'id': item.id,
                   'date': item.date,
                   'customer_id': item.customer_id,
                   'text': item.text
                 },
             changeListener),
-        _atendimentoDeletionAdapter = DeletionAdapter(
+        _atendimentoModelDeletionAdapter = DeletionAdapter(
             database,
-            'Atendimento',
+            'AtendimentoModel',
             ['id'],
-            (Atendimento item) => <String, Object?>{
+            (AtendimentoModel item) => <String, Object?>{
                   'id': item.id,
                   'date': item.date,
                   'customer_id': item.customer_id,
@@ -249,16 +258,16 @@ class _$AtendimentoDao extends AtendimentoDao {
 
   final QueryAdapter _queryAdapter;
 
-  final InsertionAdapter<Atendimento> _atendimentoInsertionAdapter;
+  final InsertionAdapter<AtendimentoModel> _atendimentoModelInsertionAdapter;
 
-  final UpdateAdapter<Atendimento> _atendimentoUpdateAdapter;
+  final UpdateAdapter<AtendimentoModel> _atendimentoModelUpdateAdapter;
 
-  final DeletionAdapter<Atendimento> _atendimentoDeletionAdapter;
+  final DeletionAdapter<AtendimentoModel> _atendimentoModelDeletionAdapter;
 
   @override
-  Future<List<Atendimento>> findAllAtendimentos() async {
+  Future<List<AtendimentoModel>> findAllAtendimentos() async {
     return _queryAdapter.queryList('SELECT * from Atendimento',
-        mapper: (Map<String, Object?> row) => Atendimento(
+        mapper: (Map<String, Object?> row) => AtendimentoModel(
             id: row['id'] as int?,
             date: row['date'] as String,
             customer_id: row['customer_id'] as int,
@@ -266,15 +275,15 @@ class _$AtendimentoDao extends AtendimentoDao {
   }
 
   @override
-  Stream<Atendimento?> findById(int id) {
+  Stream<AtendimentoModel?> findById(int id) {
     return _queryAdapter.queryStream('SELECT * FROM Atendimento WHERE id = ?1',
-        mapper: (Map<String, Object?> row) => Atendimento(
+        mapper: (Map<String, Object?> row) => AtendimentoModel(
             id: row['id'] as int?,
             date: row['date'] as String,
             customer_id: row['customer_id'] as int,
             text: row['text'] as String),
         arguments: [id],
-        queryableName: 'Atendimento',
+        queryableName: 'AtendimentoModel',
         isView: false);
   }
 
@@ -291,19 +300,20 @@ class _$AtendimentoDao extends AtendimentoDao {
   }
 
   @override
-  Future<void> insertAtendimento(Atendimento atendimento) async {
-    await _atendimentoInsertionAdapter.insert(
+  Future<void> insertAtendimento(AtendimentoModel atendimento) async {
+    await _atendimentoModelInsertionAdapter.insert(
         atendimento, OnConflictStrategy.abort);
   }
 
   @override
-  Future<int> updateAtendimento(Atendimento atendimento) {
-    return _atendimentoUpdateAdapter.updateAndReturnChangedRows(
+  Future<int> updateAtendimento(AtendimentoModel atendimento) {
+    return _atendimentoModelUpdateAdapter.updateAndReturnChangedRows(
         atendimento, OnConflictStrategy.abort);
   }
 
   @override
-  Future<int> deleteAtendimento(Atendimento atendimento) {
-    return _atendimentoDeletionAdapter.deleteAndReturnChangedRows(atendimento);
+  Future<int> deleteAtendimento(AtendimentoModel atendimento) {
+    return _atendimentoModelDeletionAdapter
+        .deleteAndReturnChangedRows(atendimento);
   }
 }

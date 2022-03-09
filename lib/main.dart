@@ -1,11 +1,11 @@
-import 'package:clinica/pages/atendimento_list_page.dart';
+import 'package:clinica/pages/atendimento_page_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:floor/floor.dart';
 import 'controllers/atendimento_controller.dart';
-import 'controllers/customer_controller.dart';
+import 'controllers/cliente_controller.dart';
 import 'db/app_database.dart';
-import 'pages/customer_list_page.dart';
+import 'pages/cliente_page_list.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +40,7 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (ctx) => CustomerController(appDatabase)),
+        ChangeNotifierProvider(create: (ctx) => ClienteController(appDatabase)),
         ChangeNotifierProvider(create: (ctx) => AtendimentoController(appDatabase))
       ],
       child: MyApp(),
@@ -55,7 +55,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Clínica',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -77,14 +77,14 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [CustomerListPage(), AtendimentoListPage()];
+  final List<Widget> _pages = [ClientePageList(), AtendimentoPageList()];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
+      // appBar: AppBar(
+      //   title: Text(widget.title),
+      // ),
 
       body: _pages[_currentIndex],
 

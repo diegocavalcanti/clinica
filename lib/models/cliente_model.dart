@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:floor/floor.dart';
 
 @Entity()
-class Customer {
+class ClienteModel {
   @PrimaryKey(autoGenerate: true)
   final int? id;
   final String name;
@@ -11,7 +11,7 @@ class Customer {
   final String responsible;
   final String comments;
 
-  Customer({
+  ClienteModel({
     required this.id,
     required this.name,
     required this.cel,
@@ -20,7 +20,7 @@ class Customer {
     required this.comments,
   });
 
-  Customer copyWith({
+  ClienteModel copyWith({
     int? id,
     String? name,
     String? cel,
@@ -28,7 +28,7 @@ class Customer {
     String? responsible,
     String? comments,
   }) {
-    return Customer(
+    return ClienteModel(
       id: id ?? this.id,
       name: name ?? this.name,
       cel: cel ?? this.cel,
@@ -38,8 +38,8 @@ class Customer {
     );
   }
 
-  static Customer newInstance() {
-    return Customer(id: null, name: "", cel: "", email: "", responsible: "", comments: "");
+  static ClienteModel newInstance() {
+    return ClienteModel(id: null, name: "", cel: "", email: "", responsible: "", comments: "");
   }
 
   @override
@@ -58,8 +58,8 @@ class Customer {
     };
   }
 
-  factory Customer.fromMap(Map<String, dynamic> map) {
-    return Customer(
+  factory ClienteModel.fromMap(Map<String, dynamic> map) {
+    return ClienteModel(
       id: map['id'] != null ? map['id'] as int : null,
       name: map['name'] as String,
       cel: map['cel'] as String,
@@ -71,5 +71,5 @@ class Customer {
 
   String toJson() => json.encode(toMap());
 
-  factory Customer.fromJson(String source) => Customer.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory ClienteModel.fromJson(String source) => ClienteModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }

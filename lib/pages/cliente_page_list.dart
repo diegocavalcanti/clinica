@@ -1,25 +1,37 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:clinica/controllers/atendimento_controller.dart';
-import 'package:clinica/models/atendimento.dart';
 import 'package:flutter/material.dart';
 import '../widgets/popup_menuitem_action.dart';
 import 'package:provider/provider.dart';
 
+import '../controllers/cliente_controller.dart';
+import '../models/cliente_model.dart';
 import '../widgets/search_widget.dart';
 
-class AtendimentoListPage extends StatelessWidget {
-  const AtendimentoListPage({Key? key}) : super(key: key);
+class ClientePageList extends StatelessWidget {
+  const ClientePageList({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    AtendimentoController controller = Provider.of<AtendimentoController>(context, listen: true);
+    ClienteController controller = Provider.of<ClienteController>(context, listen: true);
 
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Atendimentos"),
-          backgroundColor: Colors.blueGrey,
-          actions: [IconButton(icon: Icon(Icons.calendar_month), onPressed: () async {})],
+          title: Text("Pacientes"),
+          backgroundColor: Colors.blue,
+          actions: [
+            IconButton(
+                icon: Icon(Icons.search),
+                onPressed: () async {
+                  ClienteModel? result = await showSearch(
+                    context: context,
+                    delegate: SearchWidget(names: controller.list),
+                  );
+                  if (result != null) {
+                    controller.goToPageEdit(context, result);
+                  }
+                })
+          ],
         ),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
@@ -28,41 +40,23 @@ class AtendimentoListPage extends StatelessWidget {
             }),
         body: Container(
           child: ListView.builder(
-              itemCount: controller.listAtendimentosView.length,
+              itemCount: controller.list.length,
               itemBuilder: (context, index) {
-                var item = controller.listAtendimentosView[index];
+                var customer = controller.list[index];
                 return ListTile(
                   // ignore: prefer_const_constructors
                   leading: Icon(
                     Icons.person,
                     color: Colors.blue,
                   ),
-                  title: Text(item.date),
+                  title: Text(customer.name),
                   subtitle: Row(
                     children: [
-                      //tem que fazer um cast
-                      Text(item.customer_id.toString()),
-                      Text(item.customer_name)
+                      Text(customer.cel),
                     ],
                   ),
-                  onTap: () => controller.goToPageEdit(context, item.toEntity()),
-                  trailing: PopupMenuButton(
-                    itemBuilder: (context) {
-                      return [
-                        PopupMenuItem(
-                          value: PopupMenuItemAction(action: () => controller.goToPageEdit(context, item.toEntity())),
-                          child: Text('Editar'),
-                        ),
-                        PopupMenuItem(
-                          value: PopupMenuItemAction(action: () => controller.remove(context, item.toEntity())),
-                          child: Text('Excluir'),
-                        )
-                      ];
-                    },
-                    onSelected: (PopupMenuItemAction option) {
-                      option.action();
-                    },
-                  ),
+                  onTap: () => controller.goToPageView(context, customer),
+                  trailing: popupMenuActions(controller, customer),
                 );
               }),
         ),
@@ -70,8 +64,32 @@ class AtendimentoListPage extends StatelessWidget {
     );
   }
 
-  void _opcoes(BuildContext context, Atendimento Atendimento) {
-    AtendimentoController controller = Provider.of<AtendimentoController>(context, listen: false);
+  PopupMenuButton<PopupMenuItemAction> popupMenuActions(ClienteController controller, ClienteModel customer) {
+    return PopupMenuButton(
+      itemBuilder: (context) {
+        return [
+          PopupMenuItem(
+            value: PopupMenuItemAction(action: () => controller.goToPageEdit(context, customer)),
+            child: Text('Editar'),
+          ),
+          PopupMenuItem(
+            value: PopupMenuItemAction(action: () => controller.remove(context, customer)),
+            child: Text('Excluir'),
+          ),
+          PopupMenuItem(
+            value: PopupMenuItemAction(action: () => controller.goToPageView(context, customer)),
+            child: Text('Atendimentos'),
+          ),
+        ];
+      },
+      onSelected: (PopupMenuItemAction option) {
+        option.action();
+      },
+    );
+  }
+
+  void _opcoes(BuildContext context, ClienteModel customer) {
+    ClienteController controller = Provider.of<ClienteController>(context, listen: false);
 
     showModalBottomSheet(
       context: context,
@@ -82,11 +100,11 @@ class AtendimentoListPage extends StatelessWidget {
           child: Container(
             child: Column(
               children: [
-                ListTile(leading: Icon(Icons.delete), title: Text("Excluir"), onTap: () => controller.remove(context, Atendimento)),
+                ListTile(leading: Icon(Icons.delete), title: Text("Excluir"), onTap: () => controller.remove(context, customer)),
                 ListTile(
                   leading: Icon(Icons.edit),
                   title: Text("Editar"),
-                  onTap: () => controller.goToPageEdit(context, Atendimento),
+                  onTap: () => controller.goToPageEdit(context, customer),
                 ),
               ],
             ),

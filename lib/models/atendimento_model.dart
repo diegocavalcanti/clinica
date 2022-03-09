@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:floor/floor.dart';
 
 @Entity()
-class Atendimento {
+class AtendimentoModel {
   @PrimaryKey(autoGenerate: true)
   final int? id;
   final String date;
@@ -13,24 +13,24 @@ class Atendimento {
 
 
 
-  Atendimento({
+  AtendimentoModel({
     this.id,
     required this.date,
     required this.customer_id,
     required this.text,
   });
 
-  static Atendimento newInstance() {
-    return Atendimento(id: null, date: "", customer_id: 0, text: "");
+  static AtendimentoModel newInstance() {
+    return AtendimentoModel(id: null, date: "", customer_id: 0, text: "");
   }
 
-  Atendimento copyWith({
+  AtendimentoModel copyWith({
     int? id,
     String? date,
     int? customer_id,
     String? text,
   }) {
-    return Atendimento(
+    return AtendimentoModel(
       id: id ?? this.id,
       date: date ?? this.date,
       customer_id: customer_id ?? this.customer_id,
@@ -47,8 +47,8 @@ class Atendimento {
     };
   }
 
-  factory Atendimento.fromMap(Map<String, dynamic> map) {
-    return Atendimento(
+  factory AtendimentoModel.fromMap(Map<String, dynamic> map) {
+    return AtendimentoModel(
       id: map['id'] != null ? map['id'] as int : null,
       date: map['date'] as String,
       customer_id: map['customer_id'] as int,
@@ -58,5 +58,5 @@ class Atendimento {
 
   String toJson() => json.encode(toMap());
 
-  factory Atendimento.fromJson(String source) => Atendimento.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory AtendimentoModel.fromJson(String source) => AtendimentoModel.fromMap(json.decode(source) as Map<String, dynamic>);
 }

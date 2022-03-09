@@ -1,37 +1,25 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:clinica/controllers/atendimento_controller.dart';
+import 'package:clinica/models/atendimento_model.dart';
 import 'package:flutter/material.dart';
-import '../widgets/popup_menuitem_action.dart';
 import 'package:provider/provider.dart';
 
-import '../controllers/customer_controller.dart';
-import '../models/customer.dart';
+import '../widgets/popup_menuitem_action.dart';
 import '../widgets/search_widget.dart';
 
-class CustomerListPage extends StatelessWidget {
-  const CustomerListPage({Key? key}) : super(key: key);
+class AtendimentoPageList extends StatelessWidget {
+  const AtendimentoPageList({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    CustomerController controller = Provider.of<CustomerController>(context, listen: true);
+    AtendimentoController controller = Provider.of<AtendimentoController>(context, listen: true);
 
     return SafeArea(
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Pacientes"),
-          backgroundColor: Colors.blueGrey,
-          actions: [
-            IconButton(
-                icon: Icon(Icons.search),
-                onPressed: () async {
-                  Customer? result = await showSearch(
-                    context: context,
-                    delegate: SearchWidget(names: controller.list),
-                  );
-                  if (result != null) {
-                    controller.goToPageEdit(context, result);
-                  }
-                })
-          ],
+          title: Text("Atendimentos"),
+          backgroundColor: Colors.blue,
+          actions: [IconButton(icon: Icon(Icons.calendar_month), onPressed: () async {})],
         ),
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
@@ -40,31 +28,32 @@ class CustomerListPage extends StatelessWidget {
             }),
         body: Container(
           child: ListView.builder(
-              itemCount: controller.list.length,
+              itemCount: controller.listAtendimentosView.length,
               itemBuilder: (context, index) {
-                var customer = controller.list[index];
+                var item = controller.listAtendimentosView[index];
                 return ListTile(
                   // ignore: prefer_const_constructors
                   leading: Icon(
                     Icons.person,
                     color: Colors.blue,
                   ),
-                  title: Text(customer.name),
+                  title: Text(item.date),
                   subtitle: Row(
                     children: [
-                      Text(customer.cel),
+                      //tem que fazer um cast
+                      Text(item.customer_name)
                     ],
                   ),
-                  onTap: () => controller.goToPageEdit(context, customer),
+                  onTap: () => controller.goToPageEdit(context, item.toEntity()),
                   trailing: PopupMenuButton(
                     itemBuilder: (context) {
                       return [
                         PopupMenuItem(
-                          value: PopupMenuItemAction(action: () => controller.goToPageEdit(context, customer)),
+                          value: PopupMenuItemAction(action: () => controller.goToPageEdit(context, item.toEntity())),
                           child: Text('Editar'),
                         ),
                         PopupMenuItem(
-                          value: PopupMenuItemAction(action: () => controller.remove(context, customer)),
+                          value: PopupMenuItemAction(action: () => controller.remove(context, item.toEntity())),
                           child: Text('Excluir'),
                         )
                       ];
@@ -80,8 +69,8 @@ class CustomerListPage extends StatelessWidget {
     );
   }
 
-  void _opcoes(BuildContext context, Customer customer) {
-    CustomerController controller = Provider.of<CustomerController>(context, listen: false);
+  void _opcoes(BuildContext context, AtendimentoModel Atendimento) {
+    AtendimentoController controller = Provider.of<AtendimentoController>(context, listen: false);
 
     showModalBottomSheet(
       context: context,
@@ -92,11 +81,11 @@ class CustomerListPage extends StatelessWidget {
           child: Container(
             child: Column(
               children: [
-                ListTile(leading: Icon(Icons.delete), title: Text("Excluir"), onTap: () => controller.remove(context, customer)),
+                ListTile(leading: Icon(Icons.delete), title: Text("Excluir"), onTap: () => controller.remove(context, Atendimento)),
                 ListTile(
                   leading: Icon(Icons.edit),
                   title: Text("Editar"),
-                  onTap: () => controller.goToPageEdit(context, customer),
+                  onTap: () => controller.goToPageEdit(context, Atendimento),
                 ),
               ],
             ),
