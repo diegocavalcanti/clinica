@@ -1,7 +1,13 @@
 import 'package:intl/intl.dart';
 
-final date = DateFormat('dd/MM/yyyy - hh:mm');
+dateToFullText(data) {
+  return DateFormat(DateFormat.YEAR_MONTH_DAY, 'pt_BR').format(data);
+}
 
-dateToStr(DateTime dateUser) {
-  return date.format(dateUser);
+dateToDateStr(data) {
+  return DateFormat('dd/MM/yyyy', 'pt_BR').format(data);
+}
+
+dateToDateTimeStr(data) {
+  return DateFormat('dd/MM/yyyy - hh:mm', 'pt_BR').format(data);
 }

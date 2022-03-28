@@ -1,62 +1,79 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:floor/floor.dart';
-
-@Entity()
 class AtendimentoModel {
-  @PrimaryKey(autoGenerate: true)
   final int? id;
-  final String date;
-  final int customer_id;
-  final String text;
-
-
-
+  final int? idCliente;
+  final String? nomeCliente; //
+  final String? data;
+  final String? texto;
   AtendimentoModel({
     this.id,
-    required this.date,
-    required this.customer_id,
-    required this.text,
+    this.idCliente,
+    this.nomeCliente,
+    this.data,
+    this.texto,
   });
-
-  static AtendimentoModel newInstance() {
-    return AtendimentoModel(id: null, date: "", customer_id: 0, text: "");
-  }
 
   AtendimentoModel copyWith({
     int? id,
-    String? date,
-    int? customer_id,
-    String? text,
+    int? idCliente,
+    String? data,
+    String? texto,
+    String? nomeCliente,
   }) {
     return AtendimentoModel(
       id: id ?? this.id,
-      date: date ?? this.date,
-      customer_id: customer_id ?? this.customer_id,
-      text: text ?? this.text,
+      idCliente: idCliente ?? this.idCliente,
+      data: data ?? this.data,
+      texto: texto ?? this.texto,
+      nomeCliente: nomeCliente ?? this.nomeCliente,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'date': date,
-      'customer_id': customer_id,
-      'text': text,
+      'idCliente': idCliente,
+      'data': data,
+      'texto': texto,
+      //  'nomeCliente': nomeCliente,
     };
   }
 
   factory AtendimentoModel.fromMap(Map<String, dynamic> map) {
     return AtendimentoModel(
       id: map['id'] != null ? map['id'] as int : null,
-      date: map['date'] as String,
-      customer_id: map['customer_id'] as int,
-      text: map['text'] as String,
+      idCliente: map['idCliente'] as int,
+      data: map['data'] as String,
+      texto: map['texto'] as String,
+      nomeCliente: map['nomeCliente'] as String,
     );
   }
 
   String toJson() => json.encode(toMap());
 
   factory AtendimentoModel.fromJson(String source) => AtendimentoModel.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() {
+    return 'AtendimentoModel(id: $id, idCliente: $idCliente, data: $data, texto: $texto, nomeCliente: $nomeCliente)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is AtendimentoModel &&
+        other.id == id &&
+        other.idCliente == idCliente &&
+        other.data == data &&
+        other.texto == texto &&
+        other.nomeCliente == nomeCliente;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^ idCliente.hashCode ^ data.hashCode ^ texto.hashCode ^ nomeCliente.hashCode;
+  }
 }

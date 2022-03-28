@@ -3,7 +3,7 @@ import '../models/cliente_model.dart';
 
 class SearchWidget extends SearchDelegate<ClienteModel> {
   final List<ClienteModel> names;
-  ClienteModel result = ClienteModel.newInstance();
+  ClienteModel result = ClienteModel();
 
   SearchWidget({required this.names});
 
@@ -32,12 +32,12 @@ class SearchWidget extends SearchDelegate<ClienteModel> {
 
   @override
   Widget buildResults(BuildContext context) {
-    final suggestions = names.where((element) => element.name.toLowerCase().contains(query.toLowerCase()));
+    final suggestions = names.where((element) => element.nome!.toLowerCase().contains(query.toLowerCase()));
     return ListView.builder(
         itemCount: suggestions.length,
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
-            title: Text(suggestions.elementAt(index).name),
+            title: Text(suggestions.elementAt(index).nome!),
             onTap: () {
               result = suggestions.elementAt(index);
               close(context, result);
@@ -48,14 +48,14 @@ class SearchWidget extends SearchDelegate<ClienteModel> {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    final suggestions = names.where((element) => element.name.toLowerCase().contains(query.toLowerCase()));
+    final suggestions = names.where((element) => element.nome!.toLowerCase().contains(query.toLowerCase()));
     return ListView.builder(
         itemCount: suggestions.length,
         itemBuilder: (BuildContext context, int index) {
           return ListTile(
-            title: Text(suggestions.elementAt(index).name),
+            title: Text(suggestions.elementAt(index).nome!),
             onTap: () {
-              query = suggestions.elementAt(index).name;
+              query = suggestions.elementAt(index).nome!;
               result = suggestions.elementAt(index);
               close(context, result);
             },

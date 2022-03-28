@@ -1,0 +1,24 @@
+import 'package:clinica/models/pagamentos_model.dart';
+import 'package:floor/floor.dart';
+import '../models/cliente_model.dart';
+
+@dao
+abstract class PagamentoDao {
+  @Query('SELECT * FROM Pagamento')
+  Future<List<PagamentosModel>> findAllPagamentos();
+
+  @Query('SELECT * FROM Pagamento WHERE name customer_id :id')
+  Future<List<PagamentosModel>> findPagamentoByCliente(int id);
+
+  @Query('SELECT * FROM Pagamento WHERE id = :id')
+  Future<PagamentosModel?> findById(int id);
+
+  @insert
+  Future<void> insertPagamento(PagamentosModel customer);
+
+  @delete
+  Future<int> deletePagamento(PagamentosModel customer);
+
+  @update
+  Future<int> updatePagamento(PagamentosModel customer);
+}

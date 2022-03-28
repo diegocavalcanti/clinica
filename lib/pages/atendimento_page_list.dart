@@ -1,18 +1,22 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
-import 'package:clinica/controllers/atendimento_controller.dart';
+
 import 'package:clinica/models/atendimento_model.dart';
+import 'package:clinica/pages/atendimento_page_form.dart';
+import 'package:clinica/utils/nav.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../store/app_Store.dart';
 import '../widgets/popup_menuitem_action.dart';
-import '../widgets/search_widget.dart';
 
 class AtendimentoPageList extends StatelessWidget {
   const AtendimentoPageList({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    AtendimentoController controller = Provider.of<AtendimentoController>(context, listen: true);
+    final store = Provider.of<AppStore>(context);
+
+    //final store = context.watch<AppStore>();
 
     return SafeArea(
       child: Scaffold(
@@ -24,54 +28,60 @@ class AtendimentoPageList extends StatelessWidget {
         floatingActionButton: FloatingActionButton(
             child: Icon(Icons.add),
             onPressed: () {
-              controller.goToFormNew(context);
+              goTo(context, AtendimentoPageForm());
             }),
         body: Container(
-          child: ListView.builder(
-              itemCount: controller.listAtendimentosView.length,
-              itemBuilder: (context, index) {
-                var item = controller.listAtendimentosView[index];
-                return ListTile(
-                  // ignore: prefer_const_constructors
-                  leading: Icon(
-                    Icons.person,
-                    color: Colors.blue,
-                  ),
-                  title: Text(item.date),
-                  subtitle: Row(
-                    children: [
-                      //tem que fazer um cast
-                      Text(item.customer_name)
-                    ],
-                  ),
-                  onTap: () => controller.goToPageEdit(context, item.toEntity()),
-                  trailing: PopupMenuButton(
-                    itemBuilder: (context) {
-                      return [
-                        PopupMenuItem(
-                          value: PopupMenuItemAction(action: () => controller.goToPageEdit(context, item.toEntity())),
-                          child: Text('Editar'),
-                        ),
-                        PopupMenuItem(
-                          value: PopupMenuItemAction(action: () => controller.remove(context, item.toEntity())),
-                          child: Text('Excluir'),
-                        )
-                      ];
+            child: ListView.builder(
+                itemCount: store.listaAtendimentos.length,
+                itemBuilder: (context, index) {
+                  var item = store.listaAtendimentos[index];
+                  return ListTile(
+                    // ignore: prefer_const_constructors
+                    leading: Icon(
+                      Icons.person,
+                      color: Colors.blue,
+                    ),
+                    title: Text(item.data ?? ''),
+                    subtitle: Row(
+                      children: [
+                        //tem que fazer um cast
+                        Text(item.nomeCliente!)
+                      ],
+                    ),
+                    onTap: () {
+                      store.atendimento = item;
+                      goTo(context, AtendimentoPageForm());
                     },
-                    onSelected: (PopupMenuItemAction option) {
-                      option.action();
-                    },
-                  ),
-                );
-              }),
-        ),
+                    trailing: PopupMenuButton(
+                      itemBuilder: (context) {
+                        return [
+                          PopupMenuItem(
+                            value: PopupMenuItemAction(action: () {
+                              store.atendimento = item;
+                              goTo(context, AtendimentoPageForm());
+                            }),
+                            child: Text('Editar'),
+                          ),
+                          PopupMenuItem(
+                            value: PopupMenuItemAction(action: () {
+                              store.atendimento = item;
+                              goTo(context, AtendimentoPageForm());
+                            }),
+                            child: Text('Excluir'),
+                          )
+                        ];
+                      },
+                      onSelected: (PopupMenuItemAction option) {
+                        option.action();
+                      },
+                    ),
+                  );
+                })),
       ),
     );
   }
 
-  void _opcoes(BuildContext context, AtendimentoModel Atendimento) {
-    AtendimentoController controller = Provider.of<AtendimentoController>(context, listen: false);
-
+  void _opcoes(BuildContext context, AppStore store, AtendimentoModel atendimento) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -81,12 +91,14 @@ class AtendimentoPageList extends StatelessWidget {
           child: Container(
             child: Column(
               children: [
-                ListTile(leading: Icon(Icons.delete), title: Text("Excluir"), onTap: () => controller.remove(context, Atendimento)),
+                ListTile(leading: Icon(Icons.delete), title: Text("Excluir"), onTap: () => store.removeAtendimento(context, atendimento)),
                 ListTile(
-                  leading: Icon(Icons.edit),
-                  title: Text("Editar"),
-                  onTap: () => controller.goToPageEdit(context, Atendimento),
-                ),
+                    leading: Icon(Icons.edit),
+                    title: Text("Editar"),
+                    onTap: () {
+                      store.atendimento = atendimento;
+                      goTo(context, AtendimentoPageForm());
+                    }),
               ],
             ),
             decoration: BoxDecoration(

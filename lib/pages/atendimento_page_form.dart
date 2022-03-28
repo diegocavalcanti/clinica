@@ -1,66 +1,110 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, prefer_const_constructors
 
+import 'package:clinica/models/atendimento_model.dart';
+import 'package:clinica/store/app_Store.dart';
+import 'package:clinica/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:provider/provider.dart';
 
-import '../controllers/atendimento_controller.dart';
 import '../models/cliente_model.dart';
 
 class AtendimentoPageForm extends StatelessWidget {
   final _form = GlobalKey<FormState>();
-  final TextEditingController formFieldDate = TextEditingController();
-  final TextEditingController formFieldCliente = TextEditingController();
-  final TextEditingController formFieldText = TextEditingController();
+
+  AtendimentoPageForm({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    //AtendimentoController controller = Provider.of<AtendimentoController>(context, listen: true);
+    final store = Provider.of<AppStore>(context);
 
-    return Consumer<AtendimentoController>(builder: (context, controller, child) {
-      formFieldDate.text = controller.atendimento.date;
-      formFieldCliente.text = controller.atendimentoCustomer.name;
-      formFieldText.text = controller.atendimento.text;
-
-      return Scaffold(
-          appBar: AppBar(title: Text('Atendimentos'), actions: [
-            IconButton(
-                icon: Icon(Icons.save),
-                onPressed: () {
-                  if (_form.currentState!.validate()) {
-                    _form.currentState?.save();
-                    controller.save(context, controller.atendimento);
-                  }
-                })
-          ]),
-          body: Padding(
-            padding: EdgeInsets.all(10),
-            child: Form(
+    return Scaffold(
+      appBar: AppBar(title: Text('Atendimentos'), actions: [
+        IconButton(
+            icon: Icon(Icons.save),
+            onPressed: () {
+              if (_form.currentState!.validate()) {
+                _form.currentState?.save();
+                store.saveAtendimento(context, store.atendimento);
+                Navigator.of(context).pop();
+              }
+            })
+      ]),
+      body: Padding(
+        padding: EdgeInsets.all(10),
+        child: Consumer<AppStore>(builder: (context, store, child) {
+          return Form(
               key: _form,
               child: ListView(
                 children: [
-                  fieldDate(controller),
+                  fieldCliente(store),
                   SizedBox(height: 20),
-                  fieldCustomer(controller),
+                  fieldDate(context, store),
                   SizedBox(height: 20),
-                  fieldText(controller),
+                  fieldText(store),
                 ],
-              ),
-            ),
-          ));
-    });
+              ));
+        }),
+      ),
+    );
   }
 
-  TextFormField fieldDate(AtendimentoController controller) {
+  Widget fieldCliente(AppStore store) {
+    return TextFormField(
+        readOnly: true,
+        initialValue: store.atendimento.nomeCliente,
+        decoration: InputDecoration(
+          labelText: 'Cliente',
+          hintText: '',
+          border: const OutlineInputBorder(),
+          prefixIcon: Icon(Icons.person),
+        ));
+  }
+
+  // DropdownMenuItem<ClienteModel> buildDropdowMenuItem(ClienteModel model) {
+  //   return DropdownMenuItem(child: Text(model.nome!));
+  // }
+
+  // Widget fieldCliente(AppStore store) {
+  //   return DropdownButton<int>(
+  //       value: store.atendimento.idCliente,
+  //       onChanged: (value) {
+  //         store.atendimento = store.atendimento.copyWith(idCliente: value);
+  //       },
+  //       items: getItens(store.listaClientes));
+  // }
+
+  // List<DropdownMenuItem<int>> getItens(List<ClienteModel> data) {
+  //   List<DropdownMenuItem<int>> menuItems = data.map((e) => DropdownMenuItem(child: Text(e.nome!), value: e.id)).toList();
+  //   menuItems.add(DropdownMenuItem(child: Text("Nenhum"), value: 0));
+  //   return menuItems;
+  // }
+
+  Widget fieldDate(BuildContext context, AppStore store) {
+    final TextEditingController _controllerDate = TextEditingController();
+    _controllerDate.text = store.atendimento.data ?? '';
+
     return TextFormField(
         autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: (value) => value == null || value.isEmpty ? 'Campo nome é obrigatório' : null,
-        onSaved: (value) => controller.atendimento = controller.atendimento.copyWith(date: value),
-        controller: formFieldDate,
+        onSaved: (value) => store.atendimento = store.atendimento.copyWith(data: value),
+        readOnly: true,
+        controller: _controllerDate,
         inputFormatters: [
           MaskTextInputFormatter(mask: '##/##/#####', filter: {"#": RegExp(r'[0-9]')}, type: MaskAutoCompletionType.lazy)
         ],
+        onTap: () async {
+          final data = await showDatePicker(
+            context: context,
+            initialDate: DateTime.now(),
+            firstDate: DateTime(DateTime.now().year - 1),
+            lastDate: DateTime(DateTime.now().year + 1),
+            locale: Locale('pt', 'BR'),
+          );
+          if (data != null) {
+            _controllerDate.text = dateToDateStr(data);
+          }
+        },
         decoration: InputDecoration(
           labelText: 'Data',
           hintText: 'Informe a Data',
@@ -69,43 +113,11 @@ class AtendimentoPageForm extends StatelessWidget {
         ));
   }
 
-  TypeAheadFormField fieldCustomer(AtendimentoController controller) {
-    return TypeAheadFormField<ClienteModel>(
-        hideSuggestionsOnKeyboardHide: true,
-        textFieldConfiguration: TextFieldConfiguration(
-          controller: formFieldCliente,
-          autofocus: false,
-          decoration: InputDecoration(
-            prefixIcon: Icon(Icons.person),
-            border: const OutlineInputBorder(),
-            hintText: 'Selecione o Cliente',
-            label: Text('Cliente'),
-          ),
-        ),
-        noItemsFoundBuilder: (context) => SizedBox(
-              height: 100,
-              child: Center(
-                child: Text(
-                  'Nenhum cliente selecionado',
-                  style: const TextStyle(fontSize: 24),
-                ),
-              ),
-            ),
-        suggestionsCallback: (pattern) => controller.burcarClientes(pattern),
-        transitionBuilder: (context, suggestionsBox, controller) {
-          return suggestionsBox;
-        },
-        itemBuilder: (context, suggestion) => ListTile(title: Text(suggestion.name)),
-        onSuggestionSelected: (suggestion) {
-          controller.atendimento = controller.atendimento.copyWith(customer_id: suggestion.id);
-        });
-  }
-
-  fieldText(AtendimentoController controller) {
+  Widget fieldText(AppStore store) {
     return TextFormField(
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        onSaved: (value) => controller.atendimento = controller.atendimento.copyWith(text: value),
-        controller: formFieldText,
+        onSaved: (value) => store.atendimento = store.atendimento.copyWith(texto: value),
+        initialValue: store.atendimento.texto,
         minLines: 5,
         maxLines: 5,
         decoration: InputDecoration(

@@ -1,25 +1,97 @@
-import 'package:clinica/models/atendimento_model_view.dart';
-import 'package:floor/floor.dart';
+import 'package:clinica/db/app_database.dart';
+import 'package:sqflite/sqflite.dart';
+
 import '../models/atendimento_model.dart';
+import '../models/cliente_model.dart';
 
-@dao
-abstract class AtendimentoDao {
-  @Query('SELECT * from Atendimento')
-  Future<List<AtendimentoModel>> findAllAtendimentos();
+class AtendimentoDAO {
+  final tableName = 'atendimentos';
 
-  @Query('SELECT * FROM Atendimento WHERE id = :id')
-  Stream<AtendimentoModel?> findById(int id);
+  AppDatabase _connection = AppDatabase.instance;
 
-  @insert
-  Future<void> insertAtendimento(AtendimentoModel atendimento);
+  Future<Database> _getDatabase() async {
+    return await _connection.db;
+  }
 
-  //@Query('DELETE FROM Atendimento WHERE id = :id')
-  @delete
-  Future<int> deleteAtendimento(AtendimentoModel atendimento);
+  Future<AtendimentoModel> create(AtendimentoModel model) async {
+    try {
+      Database db = await _getDatabase();
+      final id = await db.insert(tableName, model.toMap());
+      return model.copyWith(id: id);
+    } catch (error) {
+      throw Exception(error);
+    }
+  }
 
-  @update
-  Future<int> updateAtendimento(AtendimentoModel atendimento);
+  Future<int> update(AtendimentoModel model) async {
+    try {
+      Database db = await _getDatabase();
+      return db.update(
+        tableName,
+        model.toMap(),
+        where: 'id = ?',
+        whereArgs: [model.id],
+      );
+    } catch (error) {
+      throw Exception(error);
+    }
+  }
 
-  @Query('SELECT Atendimento.*,   Customer.name as customer_name FROM Atendimento JOIN  Customer ON (Atendimento.customer_id = Customer.id)')
-  Future<List<AtendimentoView>> findAtendimentosView();
+  Future<AtendimentoModel> findById(int id) async {
+    try {
+      Database db = await _getDatabase();
+
+      final maps = await db.query(
+        tableName,
+        columns: ['id', 'idCliente', 'data', 'texto'],
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+
+      if (maps.isNotEmpty) {
+        return AtendimentoModel.fromMap(maps.first);
+      } else {
+        throw Exception('ID $id not found');
+      }
+    } catch (error) {
+      throw Exception(error);
+    }
+  }
+
+  Future<List<AtendimentoModel>> findAll() async {
+    try {
+      Database db = await _getDatabase();
+      //final result = await db.query(tableName, orderBy: orderBy);
+      final result = await db.rawQuery('''SELECT A.*, C.nome as nomeCliente FROM Atendimentos A JOIN  Clientes C ON (C.id = A.idCliente) order by data ASC ''');
+      return result.map((json) => AtendimentoModel.fromMap(json)).toList();
+    } catch (error) {
+      throw Exception(error);
+    }
+  }
+
+  Future<List<AtendimentoModel>> findByCliente(ClienteModel clienteModel) async {
+    try {
+      Database db = await _getDatabase();
+      //final result = await db.query(tableName, orderBy: orderBy);
+      final result = await db.rawQuery(
+          '''SELECT A.*, C.nome as nomeCliente FROM Atendimentos A JOIN  Clientes C ON (C.id = A.idCliente)  where A.idCliente = ? order by data ASC ''',
+          [clienteModel.id]);
+      return result.map((json) => AtendimentoModel.fromMap(json)).toList();
+    } catch (error) {
+      throw Exception(error);
+    }
+  }
+
+  Future<int> delete(int id) async {
+    try {
+      Database db = await _getDatabase();
+      return await db.delete(
+        tableName,
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (error) {
+      throw Exception(error);
+    }
+  }
 }

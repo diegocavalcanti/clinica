@@ -1,75 +1,86 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
-import 'package:floor/floor.dart';
 
-@Entity()
 class ClienteModel {
-  @PrimaryKey(autoGenerate: true)
   final int? id;
-  final String name;
-  final String cel;
-  final String email;
-  final String responsible;
-  final String comments;
-
+  final String? nome;
+  final String? celular;
+  final String? email;
+  final String? responsavel;
+  final String? observacoes;
   ClienteModel({
-    required this.id,
-    required this.name,
-    required this.cel,
-    required this.email,
-    required this.responsible,
-    required this.comments,
+    this.id,
+    this.nome,
+    this.celular,
+    this.email,
+    this.responsavel,
+    this.observacoes,
   });
 
   ClienteModel copyWith({
     int? id,
-    String? name,
-    String? cel,
+    String? nome,
+    String? celular,
     String? email,
-    String? responsible,
-    String? comments,
+    String? responsavel,
+    String? observacoes,
   }) {
     return ClienteModel(
       id: id ?? this.id,
-      name: name ?? this.name,
-      cel: cel ?? this.cel,
+      nome: nome ?? this.nome,
+      celular: celular ?? this.celular,
       email: email ?? this.email,
-      responsible: responsible ?? this.responsible,
-      comments: comments ?? this.comments,
+      responsavel: responsavel ?? this.responsavel,
+      observacoes: observacoes ?? this.observacoes,
     );
-  }
-
-  static ClienteModel newInstance() {
-    return ClienteModel(id: null, name: "", cel: "", email: "", responsible: "", comments: "");
-  }
-
-  @override
-  String toString() {
-    return 'Customer(id: $id, name: $name, cel: $cel, email: $email, responsible: $responsible, comments: $comments)';
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
       'id': id,
-      'name': name,
-      'cel': cel,
+      'nome': nome,
+      'celular': celular,
       'email': email,
-      'responsible': responsible,
-      'comments': comments,
+      'responsavel': responsavel,
+      'observacoes': observacoes,
     };
   }
 
   factory ClienteModel.fromMap(Map<String, dynamic> map) {
     return ClienteModel(
       id: map['id'] != null ? map['id'] as int : null,
-      name: map['name'] as String,
-      cel: map['cel'] as String,
-      email: map['email'] as String,
-      responsible: map['responsible'] as String,
-      comments: map['comments'] as String,
+      nome: map['nome'] != null ? map['nome'] as String : null,
+      celular: map['celular'] != null ? map['celular'] as String : null,
+      email: map['email'] != null ? map['email'] as String : null,
+      responsavel: map['responsavel'] != null ? map['responsavel'] as String : null,
+      observacoes: map['observacoes'] != null ? map['observacoes'] as String : null,
     );
   }
 
   String toJson() => json.encode(toMap());
 
   factory ClienteModel.fromJson(String source) => ClienteModel.fromMap(json.decode(source) as Map<String, dynamic>);
+
+  @override
+  String toString() {
+    return 'ClienteModel(id: $id, nome: $nome, celular: $celular, email: $email, responsavel: $responsavel, observacoes: $observacoes)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is ClienteModel &&
+        other.id == id &&
+        other.nome == nome &&
+        other.celular == celular &&
+        other.email == email &&
+        other.responsavel == responsavel &&
+        other.observacoes == observacoes;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^ nome.hashCode ^ celular.hashCode ^ email.hashCode ^ responsavel.hashCode ^ observacoes.hashCode;
+  }
 }

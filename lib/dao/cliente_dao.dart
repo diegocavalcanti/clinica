@@ -1,24 +1,90 @@
-import 'package:floor/floor.dart';
+import 'package:clinica/db/app_database.dart';
+import 'package:sqflite/sqflite.dart';
+
 import '../models/cliente_model.dart';
 
-@dao
-abstract class ClienteDao {
-  @Query('SELECT * FROM Customer')
-  Future<List<ClienteModel>> findAllClientes();
+class ClienteDAO {
+  final tableName = 'clientes';
+  AppDatabase _connection = AppDatabase.instance;
 
-  @Query('SELECT * FROM Customer WHERE name like :name')
-  Future<List<ClienteModel>> findClientesByName(String name);
+  Future<Database> _getDatabase() async {
+    return await _connection.db;
+  }
 
-  @Query('SELECT * FROM Customer WHERE id = :id')
-  Future<ClienteModel?> findById(int id);
+  Future<ClienteModel> create(ClienteModel model) async {
+    try {
+      Database db = await _getDatabase();
+      final id = await db.insert(tableName, model.toMap());
+      return model.copyWith(id: id);
+    } catch (error) {
+      throw Exception(error);
+    }
+  }
 
-  @insert
-  Future<void> insertCliente(ClienteModel customer);
+  Future<int> update(ClienteModel model) async {
+    try {
+      Database db = await _getDatabase();
+      return db.update(
+        tableName,
+        model.toMap(),
+        where: 'id = ?',
+        whereArgs: [model.id],
+      );
+    } catch (error) {
+      throw Exception(error);
+    }
+  }
 
-  //@Query('DELETE FROM Customer WHERE id = :id')
-  @delete
-  Future<int> deleteCliente(ClienteModel customer);
+  Future<ClienteModel> findById(int id) async {
+    try {
+      Database db = await _getDatabase();
 
-  @update
-  Future<int> updateCliente(ClienteModel customer);
+      final maps = await db.query(
+        tableName,
+        columns: [
+          'id',
+          'nome',
+          'celular',
+          'email',
+          'responsavel',
+          'observacoes',
+        ],
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+
+      if (maps.isNotEmpty) {
+        return ClienteModel.fromMap(maps.first);
+      } else {
+        throw Exception('ID $id not found');
+      }
+    } catch (error) {
+      throw Exception(error);
+    }
+  }
+
+  Future<List<ClienteModel>> findAll() async {
+    try {
+      Database db = await _getDatabase();
+      final orderBy = 'nome ASC';
+      final result = await db.query(tableName, orderBy: orderBy);
+      return result.map((json) => ClienteModel.fromMap(json)).toList();
+    } catch (error) {
+      throw Exception(error);
+    }
+  }
+
+  Future<int> delete(int id) async {
+    try {
+      Database db = await _getDatabase();
+      return await db.delete(
+        tableName,
+        where: 'id = ?',
+        whereArgs: [id],
+      );
+    } catch (error) {
+      throw Exception(error);
+    }
+  }
+
 }
