@@ -1,12 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, prefer_const_constructors
-import 'package:clinica/pages/cliente_page_view.dart';
+import 'package:clinica/models/cliente_model.dart';
+import 'package:clinica/pages/cliente/cliente_page_view.dart';
+import 'package:clinica/store/app_Store.dart';
+import 'package:clinica/utils/nav.dart';
+import 'package:clinica/widgets/popup_menuitem_action.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../models/cliente_model.dart';
-import '../store/app_Store.dart';
-import '../utils/nav.dart';
-import '../widgets/popup_menuitem_action.dart';
 import 'cliente_page_form.dart';
 
 class ClientePageList extends StatelessWidget {

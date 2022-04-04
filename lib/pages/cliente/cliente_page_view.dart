@@ -1,14 +1,15 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:clinica/models/atendimento_model.dart';
 import 'package:clinica/models/cliente_model.dart';
 import 'package:clinica/models/pagamento_model.dart';
-import 'package:clinica/pages/atendimento_page_form.dart';
-import 'package:clinica/pages/cliente_page_form.dart';
+import 'package:clinica/pages/atendimento/atendimento_page_form.dart';
+import 'package:clinica/pages/cliente/cliente_page_form.dart';
+import 'package:clinica/pages/recebimento/recebimento_page_form.dart';
 import 'package:clinica/store/app_Store.dart';
 import 'package:clinica/utils/nav.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/atendimento_model.dart';
 
 class ClientePageView extends StatelessWidget {
   //ValueNotifier<int> _tabIndex = ValueNotifier(0);
@@ -21,7 +22,7 @@ class ClientePageView extends StatelessWidget {
     //final store = context.watch<AppStore>();
 
     return DefaultTabController(
-        length: 2,
+        length: 3,
         child: Scaffold(
           appBar: AppBar(
             title: Text("${store.cliente.nome}"),
@@ -29,6 +30,7 @@ class ClientePageView extends StatelessWidget {
               tabs: <Widget>[
                 Tab(text: 'Dados Pessoais'),
                 Tab(text: 'Atendimentos'),
+                Tab(text: 'Recebimentos'),
               ],
               onTap: (index) {
                 store.tabIndex = index;
@@ -38,23 +40,35 @@ class ClientePageView extends StatelessWidget {
           body: TabBarView(children: [
             tabDadosPessoais(store),
             tabAtendimentos(context, store),
+            tabRecebimentos(context, store)
             //   tabPagamentos(context),
           ]),
           floatingActionButton: FloatingActionButton(
               child: (store.tabIndex == 0) ? Icon(Icons.edit) : Icon(Icons.add),
               onPressed: () {
+                // se estiver na tab Dados Pessoais
                 if (store.tabIndex == 0) {
                   goTo(context, ClientePageForm());
+
+                  // se estiver na tab atendimentos
                 } else if (store.tabIndex == 1) {
                   AtendimentoModel newAtendimento = AtendimentoModel();
                   newAtendimento = newAtendimento.copyWith(idCliente: store.cliente.id, nomeCliente: store.cliente.nome);
                   store.atendimento = newAtendimento;
                   goTo(context, AtendimentoPageForm());
-                  //storage.goToPageNovoAtendimento(context, clienteController.cliente);
-                } else if (store.tabIndex == 2) {}
+
+                  // se estiver na tab recebimentos
+                } else if (store.tabIndex == 2) {
+                  print("Teste");
+                  goTo(context, RecebimentoPageForm());
+                }
               }),
         ));
   }
+}
+
+tabRecebimentos(BuildContext context, AppStore store) {
+  return Container();
 }
 
 tabDadosPessoais(AppStore store) {

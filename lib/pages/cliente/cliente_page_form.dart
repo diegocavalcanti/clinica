@@ -1,11 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first, prefer_const_constructors
+import 'package:clinica/store/app_store.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:provider/provider.dart';
-
-import '../models/cliente_model.dart';
-import '../store/app_Store.dart';
 
 class ClientePageForm extends StatelessWidget {
   final _form = GlobalKey<FormState>();

@@ -1,13 +1,12 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
 import 'package:clinica/models/atendimento_model.dart';
-import 'package:clinica/pages/atendimento_page_form.dart';
+import 'package:clinica/pages/atendimento/atendimento_page_form.dart';
+import 'package:clinica/store/app_store.dart';
 import 'package:clinica/utils/nav.dart';
+import 'package:clinica/widgets/popup_menuitem_action.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
-import '../store/app_Store.dart';
-import '../widgets/popup_menuitem_action.dart';
 
 class AtendimentoPageList extends StatelessWidget {
   const AtendimentoPageList({Key? key}) : super(key: key);
